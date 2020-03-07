@@ -1,0 +1,29 @@
+PL#3 STI
+Para configurar, pegar no exemplo que vem com o VPN e preencher as diretivas
+Obrigatório: IP da interface onde queremos que o VPN fique à escuta
+
+Clonar uma VM para fazer o tunel VPN (open) entre elas
+Numa usar, por exemplo server.conf e noutra client.conf
+
+
+Depois é preciso atribuir endereços, por exemplo :
+
+10.5.0.1/24 pra um e 10.5.0.2/24 para outro, têm de estar na mesma rede
+
+Depois é necessário criar um novo network adapter, 2
+
+Os ficheiros na diretoria sample, são exemplos que já vêm
+Pegar neles e copiar e depois alterar e adaptar ao nosso cenário
+
+teste.conf
+Os certificados têm de ser criados como na aula 2 (e pôr a diretoria)
+(Esquece )
+
+Alguns comandos
+openvpn --config teste.conf
+openvpn --genkey --secret ta.key
+
+
+
+Notas:
+Ler os comentários do template
