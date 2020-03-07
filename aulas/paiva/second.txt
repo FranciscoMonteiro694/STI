@@ -1,0 +1,60 @@
+
+criamos uma diretoria ca na pasta etc
+
+cd /Etc/pki/ca (foi criada a ca
+
+depois corri o codigo para criuar a chave:
+
+openssl genrsa -out ca.key 2048
+
+***nota**
+para mudar para root fazemos su/sudo bash
+**nota**
+
+
+openssl req -new -key ca.key -out ca.csr //criar o certificado
+
+depois fazemos o seuingte para criar o assinado
+
+openssl x509 -req -days 3650 -in ca.csr -out ca.crt -signkey ca.key
+
+**nota**
+Se for para um servico o CN (nome comum) tem de ser igual ao do endereço isto é https://www.uc.pt é “www.uc.pt” 
+Por outro lado se for para privado/user o CN tem de ser igual ao nome do utilizador
+**nota**
+
+//gerar p site
+openssl genrsa -out www.key 2048
+
+openssl req -new -key ca.key -out ca.csr //criar o certificado
+
+//comando dos slides
+# Creation of a x.509 certificate using an existing CA 
+openssl ca -in www.csr -cert ca.crt -keyfile ca.key -out www.crt 
+
+tivemos de criar uma diretoria que faltava
+touch index.txt
+echo 01 > serial
+
+//gerar p user
+openssl genrsa -out user.key 2048
+
+openssl req -new -key user.key -out user.csr //criar o certificado
+
+//comando dos slides
+# Creation of a x.509 certificate using an existing CA 
+openssl ca -in user.csr -cert cam.crt -keyfile ca.key -out www.crt 
+
+//instalar as duas ferramentas 
+
+yum install httpd
+ “” 	“”		mod_Ssl
+
+//mudar o ficheiro para termos as diretorias corretas dos ficheors que criamos anteriormente
+/etc/httpd/conf.d/ssl.conf
+
+ //adicionar o url (www.uc.pt) ao ficheiro etc/hosts
+
+//ir ao firefox fazer qlq merda da privacidade p adicionar os hosts e depois fazer systemctl start httpd
+
+//firefox e meter i link do site
