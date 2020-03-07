@@ -1,1 +1,18 @@
-d
+gpg —gen-key
+gpg —list-keys
+gpg — export -a
+
+fingerprint - resumo digital da chave
+permite comparar as chaves ( validação manual por um humano) e
+
+para importar é copiar a chave escolhida, gpg —inport e colar a chave ctrl v
+
+para editar a chave usamos gpg —edit-key <user id>
+	la dentro temps SIGN
+	TRUST
+	no final temos o SAVE
+sgg -s-l-a (sign/encrypt/ascii)
+
+
+gpg —export -a > pub.keys
+gpg —export-secret-keys -a > sec.keys
