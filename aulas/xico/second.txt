@@ -1,0 +1,41 @@
+Aula 2 # STI
+usar estes nomes para ser mais fácil
+
+ca.key
+ca.csr
+ca.crt
+
+
+depois 
+www.key
+www.csr
+www.crt
+
+e pro user
+user.key
+user.csr
+user.crt
+
+### Comandos
+cd /etc/pki/
+
+openssl genrsa -out ca.key 2048 
+openssl req -new -key ca.key -out ca.csr
+openssl x509 -req -days 3650 -in ca.csr -out ca.crt -signkey ca.key
+openssl x509 -in ca.crt -text
+
+Notas:
+
+num serviço -> O common name deve ser igual ao hostname
+num user -> o common name dever ser igual ao utilizador
+
+openssl ca -in ca.csr -cert ca.crt -keyfile ca.key -out www.crt
+
+São sempre 3 comandos para cada passo, mas só o 3º é que muda
+(Para o último caso) (user)
+openssl ca -in user.csr -cert ca.crt -keyfile ca.key -out user.crt
+Para o penúltimo (serviço)
+openssl ca -in www.csr -cert ca.crt -keyfile ca.key -out www.crt
+
+yum install httpd 
+yum install mod_ssl
