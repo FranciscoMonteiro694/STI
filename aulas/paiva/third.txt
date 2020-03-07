@@ -1,0 +1,9 @@
+yum install epel-release
+yam install openvpn
+cd /usr/share/doc/openvpn-2.4.8/
+vi server.conf
+cp server.conf server2.conf
+openvpn —config server2.conf
+
+
+tem de se mudar o local ao inicio do ficheiro 
