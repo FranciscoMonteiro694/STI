@@ -1,1 +1,7 @@
 ### Comandos do mal
+
+### Ordem de festas
+### 1º Configurar o VPN
+### 2º Clonar
+### 3º Meter o CA a receber pedidos e a responder 
+### 4º Fazer os RoadWarriors
