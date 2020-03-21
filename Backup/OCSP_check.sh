@@ -8,6 +8,7 @@
 # Edit the following values to suit your needs
 # OCSP responder URL (mandatory)
 # YOU MUST UNCOMMENT ONE OF THESE AND SET IT TO A VALID SERVER
+echo "Hello World"
 ocsp_url="http://10.5.0.2:1196"
 #ocsp_url="https://ocsp.secure.example.com/"
 # Path to issuer certificate (mandatory)
