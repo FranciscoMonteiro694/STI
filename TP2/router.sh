@@ -99,12 +99,69 @@ iptables -A FORWARD -s 23.214.219.130 -p tcp -d 87.248.214.0/24 --sport openvpn 
 iptables -A FORWARD -s 23.214.219.130 -p tcp -d 192.168.10.3 --dport postgres -i enp0s9 -o enp0s8 -j ACCEPT
 iptables -A FORWARD -s 192.168.10.3 -p tcp -d 23.214.219.130 --sport postgres -i enp0s8 -o enp0s9 -j ACCEPT
 
+#PARTE 3
+
+#FTP
+#active mode
+iptables -A FORWARD -d 192.168.10.2 -p tcp -i enp0s10 -o enp0s8 --dport ftp -j ACCEPT 
+iptables -A FORWARD -s 192.168.10.2 -p tcp -i enp0s8 -o enp0s10 --sport ftp -j ACCEPT 
+#passive mode
+iptables -A FORWARD -i enp0s10 -m state --state RELATED,ESTABLISHED -j ACCEPT 
+modprobe ip_conntrack_ftp
+modprobe ip_nat_ftp
+
+iptables -t nat -A PREROUTING -d 87.248.214.97 -p tcp --dport ftp -j DNAT --to-destination 192.168.10.2
+
+
+#SSH connections
+#eden 
+iptables -A FORWARD -s 87.248.214.2 -d 192.168.10.3 -p tcp --dport ssh -j ACCEPT
+iptables -A FORWARD -s 192.168.10.3 -p tcp --sport ssh -j ACCEPT
+iptables -t nat -A PREROUTING -s 87.248.214.2 -d 87.248.214.97 -p tcp --dport ssh -j DNAT --to-destination 192.168.10.3 
+
+
+#dns2 
+iptables -A FORWARD -s 87.248.214.1 -d 192.168.10.3 -p tcp --dport ssh -j ACCEPT
+iptables -A FORWARD -s 192.168.10.3 -p tcp --sport ssh -j ACCEPT
+iptables -t nat -A PREROUTING -s 87.248.214.1 -d 87.248.214.97 -p tcp --dport ssh -j DNAT --to-destination 192.168.10.3 
+
+
+#PARTE 3.2
+#DNS
+iptables -A FORWARD -s 192.168.10.0/24 -p udp --dport domain -o enp0s10 -j ACCEPT
+iptables -A FORWARD -i enp0s10 -d 192.168.10.0/24 -p udp --sport domain -j ACCEPT
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o enp0s10  -p udp --dport domain -j SNAT --to-source 87.248.214.97
+
+#HTTP, HTTPS and SSH connections
+#http
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp --dport http -o enp0s10 -j ACCEPT
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o enp0s10 -p tcp --dport http -j SNAT --to-source 87.248.214.97
+
+#https
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp --dport https -o enp0s10 -j ACCEPT
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o enp0s10 -p tcp --dport https -j SNAT --to-source 87.248.214.97
+
+#ssh
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp --dport ssh -o enp0s10 -j ACCEPT
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o enp0s10 -p tcp --dport ssh -j SNAT --to-source 87.248.214.97
+
+#para todos
+iptables -A FORWARD -d 192.168.10.0/24 -p tcp ! --syn -j ACCEPT
+
+#ftp
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp -o enp0s10 --dport ftp -j ACCEPT 
+iptables -A FORWARD -d 192.168.10.0/24 -p tcp -i enp0s10 --sport ftp -j ACCEPT 
+
+#passive mode
+iptables -A FORWARD -i enp0s8 -m state --state RELATED,ESTABLISHED -j ACCEPT 
+modprobe ip_conntrack_ftp 
+modprobe ip_nat_ftp
+
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o enp0s10 -p tcp --dport ftp -j SNAT --to-source 87.248.214.97
+
 
 #dar drop a tudo
 iptables -P INPUT DROP
 iptables -P OUTPUT DROP
 iptables -P FORWARD DROP
-
-
-
 
