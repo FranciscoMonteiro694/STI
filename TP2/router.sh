@@ -104,13 +104,19 @@ iptables -A FORWARD -s 192.168.10.3 -p tcp -d 23.214.219.130 --sport postgres -i
 #FTP
 #active mode
 iptables -A FORWARD -d 192.168.10.2 -p tcp -i enp0s10 -o enp0s8 --dport ftp -j ACCEPT 
-iptables -A FORWARD -s 192.168.10.2 -p tcp -i enp0s8 -o enp0s10 --sport ftp -j ACCEPT 
+iptables -A FORWARD -s 192.168.10.2 -p tcp -i enp0s8 -o enp0s10 --sport ftp -j ACCEPT
+iptables -A FORWARD -d 192.168.10.2 -p tcp -i enp0s10 -o enp0s8 --dport ftp-data -j ACCEPT 
+iptables -A FORWARD -s 192.168.10.2 -p tcp -i enp0s8 -o enp0s10 --sport ftp-data -j ACCEPT
+iptables -A FORWARD -d 192.168.10.2 -p tcp -i enp0s10 -o enp0s8 --dport 2000:2050 -j ACCEPT 
+iptables -A FORWARD -s 192.168.10.2 -p tcp -i enp0s8 -o enp0s10 --sport 2000:2050 -j ACCEPT
 #passive mode
 iptables -A FORWARD -i enp0s10 -m state --state RELATED,ESTABLISHED -j ACCEPT 
 modprobe ip_conntrack_ftp
 modprobe ip_nat_ftp
 
 iptables -t nat -A PREROUTING -d 87.248.214.97 -p tcp --dport ftp -j DNAT --to-destination 192.168.10.2
+iptables -t nat -A PREROUTING -d 87.248.214.97 -p tcp --dport ftp-data -j DNAT --to-destination 192.168.10.2
+iptables -t nat -A PREROUTING -d 87.248.214.97 -p tcp --dport 2000:2050 -j DNAT --to-destination 192.168.10.2
 
 
 #SSH connections
@@ -150,7 +156,12 @@ iptables -A FORWARD -d 192.168.10.0/24 -p tcp ! --syn -j ACCEPT
 
 #ftp
 iptables -A FORWARD -s 192.168.10.0/24 -p tcp -o enp0s10 --dport ftp -j ACCEPT 
-iptables -A FORWARD -d 192.168.10.0/24 -p tcp -i enp0s10 --sport ftp -j ACCEPT 
+iptables -A FORWARD -d 192.168.10.0/24 -p tcp -i enp0s10 --sport ftp -j ACCEPT
+#adicionei isto
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp -o enp0s10 --dport ftp-data -j ACCEPT 
+iptables -A FORWARD -d 192.168.10.0/24 -p tcp -i enp0s10 --sport ftp-data -j ACCEPT
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp -o enp0s10 --dport 2000:2050 -j ACCEPT 
+iptables -A FORWARD -d 192.168.10.0/24 -p tcp -i enp0s10 --sport 2000:2050 -j ACCEPT
 
 #passive mode
 iptables -A FORWARD -i enp0s8 -m state --state RELATED,ESTABLISHED -j ACCEPT 
@@ -158,10 +169,16 @@ modprobe ip_conntrack_ftp
 modprobe ip_nat_ftp
 
 iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o enp0s10 -p tcp --dport ftp -j SNAT --to-source 87.248.214.97
+#adicionei isto
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o enp0s10 -p tcp --dport ftp-data -j SNAT --to-source 87.248.214.97
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o enp0s10 -p tcp --dport 2000:2050 -j SNAT --to-source 87.248.214.97
 
 
 #dar drop a tudo
 iptables -P INPUT DROP
 iptables -P OUTPUT DROP
 iptables -P FORWARD DROP
+
+
+
 
