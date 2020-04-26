@@ -91,7 +91,7 @@ iptables -A FORWARD -s 23.214.219.130 -p tcp -d 192.168.10.0/24 --sport openvpn 
 iptables -A FORWARD -s 87.248.214.0/24 -p udp -d 23.214.219.130 --dport openvpn -i enp0s10 -o enp0s9 -j ACCEPT
 iptables -A FORWARD -s 23.214.219.130 -p udp -d 87.248.214.0/24 --sport openvpn -i enp0s9 -o enp0s10 -j ACCEPT
 
-#Internet (UDP)
+#Internet (TCP)
 iptables -A FORWARD -s 87.248.214.0/24 -p tcp -d 23.214.219.130 --dport openvpn -i enp0s10 -o enp0s9 -j ACCEPT
 iptables -A FORWARD -s 23.214.219.130 -p tcp -d 87.248.214.0/24 --sport openvpn -i enp0s9 -o enp0s10 -j ACCEPT
 
@@ -157,7 +157,6 @@ iptables -A FORWARD -d 192.168.10.0/24 -p tcp ! --syn -j ACCEPT
 #ftp
 iptables -A FORWARD -s 192.168.10.0/24 -p tcp -o enp0s10 --dport ftp -j ACCEPT 
 iptables -A FORWARD -d 192.168.10.0/24 -p tcp -i enp0s10 --sport ftp -j ACCEPT
-#adicionei isto
 iptables -A FORWARD -s 192.168.10.0/24 -p tcp -o enp0s10 --dport ftp-data -j ACCEPT 
 iptables -A FORWARD -d 192.168.10.0/24 -p tcp -i enp0s10 --sport ftp-data -j ACCEPT
 iptables -A FORWARD -s 192.168.10.0/24 -p tcp -o enp0s10 --dport 2000:2050 -j ACCEPT 
