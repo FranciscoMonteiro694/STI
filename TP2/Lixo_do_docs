@@ -1,0 +1,166 @@
+# DNS -> DNS2 (MUDEI PARA TCP)
+iptables -A FORWARD -s 23.214.219.133(dns) -d 87.248.214.1(dns2) -p tcp --dport domain -i enp0s9 -o enp0s10 -j ACCEPT
+iptables -A FORWARD -s 87.248.214.1(dns2) -d 23.214.219.133(dns) -p tcp --sport domain -i enp0s10 -o enp0s9 -j ACCEPT 
+
+
+# DNS2 -> DNS
+iptables -A FORWARD -s 87.248.214.1(dns2) -p tcp -d 23.214.219.133(dns) --dport domain -i enp0s10 -o enp0s9 -j ACCEPT
+iptables -A FORWARD -s 23.214.219.133(dns) -p tcp -d 87.248.214.1(dns2) --sport domain -i enp0s9 -o enp0s10 -j ACCEPT
+
+# SMTP connections
+# Internal network
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp -d 23.214.219.132(smtp)
+--dport smtp -i 192.168.10.254 -o 23.214.219.254 -j ACCEPT
+iptables -A FORWARD -s 23.214.219.132(smtp) -p tcp -d 192.168.10.0/24
+--sport smtp -i 23.214.219.254 -o 192.168.10.254 -j ACCEPT
+
+# Internet 
+iptables -A FORWARD -s 87.248.214.0/24 -p tcp -d 23.214.219.132(smtp) 
+--dport smtp -i 87.248.214.97 -o 23.214.219.254 -j ACCEPT
+iptables -A FORWARD -s 23.214.219.132(smtp) -p tcp -d 87.248.214.0/24
+--sport smtp -i 23.214.219.254 -o 87.248.214.97 -j ACCEPT
+
+#Pop and Imap connections to mail server
+# Internal network
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp -d 23.214.219.134(mail)
+--dport pop3 -i 192.168.10.254 -o 23.214.219.254 -j ACCEPT
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp -d 23.214.219.134(mail)
+--dport imap -i 192.168.10.254 -o 23.214.219.254 -j ACCEPT
+iptables -A FORWARD -s 23.214.219.134(mail) -p tcp -d 192.168.10.0/24
+--sport pop3 -i 23.214.219.254 -o 192.168.10.254 -j ACCEPT
+iptables -A FORWARD -s 23.214.219.134(mail) -p tcp -d 192.168.10.0/24
+--sport imap -i 23.214.219.254 -o 192.168.10.254 -j ACCEPT
+
+
+# Internet
+iptables -A FORWARD -s 87.248.214.0/24 -p tcp -d 23.214.219.134(mail) --dport pop3 -j ACCEPT
+iptables -A FORWARD -s 87.248.214.0/24 -p tcp -d 23.214.219.134(mail) --dport imap -j ACCEPT
+iptables -A FORWARD -s 23.214.219.134(mail) -p tcp -d 87.248.214.0/24--sport pop3 -j ACCEPT
+iptables -A FORWARD -s 23.214.219.134(mail) -p tcp -d 87.248.214.0/24 --sport imap -j ACCEPT
+
+#Https and Http connections to the www server
+#Internal network
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp -d 23.214.219.131(www)
+--dport http -j ACCEPT
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp -d 23.214.219.131(www)
+--dport https -j ACCEPT
+iptables -A FORWARD -s 23.214.219.131(www) -p tcp -d 192.168.10.0/24
+--sport http -j ACCEPT
+iptables -A FORWARD -s 23.214.219.131(www) -p tcp -d 192.168.10.0/24
+--sport https -j ACCEPT
+
+
+#Internet
+iptables -A FORWARD -s 87.248.214.0/24 -p tcp -d 23.214.219.131(www) --dport http -j ACCEPT
+iptables -A FORWARD -s 87.248.214.0/24 -p tcp -d 23.214.219.131(www) --dport https -j ACCEPT
+iptables -A FORWARD -s 23.214.219.131(www) -p tcp -d 87.248.214.0/24 --sport http -j ACCEPT
+iptables -A FORWARD -s 23.214.219.131(www) -p tcp -d 87.248.214.0/24 --sport https -j ACCEPT
+
+
+
+
+#Openvpn connections to the vpn-gw (pode não estar bem)
+# Internal network
+iptables -A FORWARD -s 192.168.10.0/24 -p udp -d 23.214.219.130(vpn-gw)4--dport 1194(openvpn) -i 192.168.10.254 -o 23.214.219.254 -j ACCEPT
+iptables -A FORWARD -s 23.214.219.130(vpngw) -p udp -d 192.168.10.0/24
+--sport 1194(openvpn) -i 23.214.219.254 -o 192.168.10.254 -j ACCEPT
+
+# Internet 
+iptables -A FORWARD -s 87.248.214.0/24 -p udp -d 23.214.219.130(vpn-gw) --dport 1194(openvpn) -i 87.248.214.97 -o 23.214.219.254 -j ACCEPT
+iptables -A FORWARD -s 23.214.219.130(vpngw) -p udp -d 87.248.214.0/24
+--sport 1194(openvpn) -i 23.214.219.254 -o 87.248.214.97 -j ACCEPT
+
+#adicionei isto para o tcp
+#internal network
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp -d 23.214.219.130(vpngw)
+--dport 1194(openvpn) -i 192.168.10.254 -o 23.214.219.254 -j ACCEPT
+iptables -A FORWARD -s 23.214.219.130(vpngw) -p tcp -d 192.168.10.0/24
+--sport 1194(openvpn) -i 23.214.219.254 -o 192.168.10.254 -j ACCEPT
+
+# Internet 
+iptables -A FORWARD -s 87.248.214.0/24 -p tcp -d 23.214.219.130(vpngw) --dport 1194(openvpn) -i 87.248.214.97 -o 23.214.219.254 -j ACCEPT
+iptables -A FORWARD -s 23.214.219.130(vpngw) -p tcp -d 87.248.214.0/24
+--sport 1194(openvpn) -i 23.214.219.254 -o 87.248.214.97 -j ACCEPT
+#ate aqui
+
+
+#Vpn clients connected to vpn-gw should be able to connect to the PostgreSQL on datastore
+iptables -A FORWARD -s 23.214.219.131(vpn-gw) -p tcp -d 192.168.10.3(datastore) --dport postgres -j ACCEPT
+iptables -A FORWARD -s 192.168.10.3(datastore) -p tcp -d 23.214.219.131(vpn-gw) --sport postgres -j ACCEPT
+
+#Não falta dar drop do resto?
+#Firewall configuration for connections to the external IP address of the firewall (Using NAT)
+
+#Ftp connections to the ftp server (isto é que vai ser bonito)
+(é preciso o ftp-data? visto que só fala de conexões no enunciado0)
+#active mode
+#ftp
+iptables -a FORWARD -d 192.168.10.2 -p tcp -i enp0s10 -o enp0s8 --dport ftp -j ACCEPT 
+iptables -a FORWARD -s 192.168.10.2 -p tcp -i enp0s8 -o enp0s10 --sport ftp-data -j ACCEPT 
+#passive mode
+iptables -a FORWARD -i enp0s10 -m state --state RELATED,ESTABLISHED -j ACCEPT 
+modprobe ip_conntrack_ftp 
+
+
+#para todos((também é preciso para o ftp-data?))
+iptables -t nat -a PREROUTING -p tcp -d 87.248.214.97 --dport ftp -j DNAT --to-destination 192.168.10.2
+#SSH connections to datastore server, only if originated at eden or dns2
+
+(nova versão)
+#SSH connections
+#eden 
+iptables -A FORWARD -i enp0s10 -d 192.168.10.3 -p tcp --dport ssh -j ACCEPT
+iptables -A FORWARD -s 192.168.10.3 -p tcp --sport ssh -j ACCEPT
+iptables -t nat -A PREROUTING -i enp0s10 -d 87.248.214.97 -p tcp --dport ssh -j DNAT --to-destination 192.168.10.3 
+
+
+#dns2 
+iptables -A FORWARD -i enp0s10 -d 192.168.10.3 -p tcp --dport ssh -j ACCEPT
+iptables -A FORWARD -s 192.168.10.3 -p tcp --sport ssh -j ACCEPT
+iptables -t nat -A PREROUTING -i enp0s10 -d 87.248.214.97 -p tcp --dport ssh -j DNAT --to-destination 192.168.10.3 
+
+
+(ate aqui)
+
+
+
+
+#Firewall configuration for communications from the internal network to the outside (internet) (using NAT)
+
+#DNS
+iptables -A FORWARD -s 192.168.10.0/24 -p udp --dport domain -o enp0s10 -j ACCEPT
+iptables -A FORWARD -i enp0s10 -d 192.168.10.0/24 -p udp --sport domain -j ACCEPT
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o enp0s10 -p udp --dport domain -j SNAT --to-source 87.248.214.97
+
+
+
+#HTTP, HTTPS and SSH connections
+#http
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp --dport http -o enp0s10 -j ACCEPT
+
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o enp0s10 -p tcp --dport http -j SNAT --to-source 87.248.214.97t
+
+#https
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp --dport https -o enp0s10 -j ACCEPT
+
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o enp0s10 -p tcp --dport https -j SNAT --to-source 87.248.214.97
+
+#ssh
+iptables -A FORWARD -s 192.168.10.0/24 -p tcp --dport ssh -o enp0s10 -j ACCEPT
+
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o enp0s10 -p tcp --dport ssh -j SNAT --to-source 87.248.214.97
+#para todos
+iptables -a FORWARD -d 192.168.10.0/24 -p tcp ! --syn -j ACCEPT
+
+#FTP connections to external FTP servers
+#active mode
+iptables -a FORWARD -s 192.168.10.0/24 -p tcp -o enp0s10 --sport ftp -j ACCEPT 
+iptables -a FORWARD -d 192.168.10.0/24 -p tcp -i enp0s10 --dport ftp-data -j ACCEPT 
+
+
+#passive mode - (tambem é preciso para o ftp-data?)
+iptables -a FORWARD -i enp0s8 -m state --state RELATED,ESTABLISHED -j ACCEPT 
+modprobe ip_conntrack_ftp 
+modprobe ip_nat_ftp
+
+iptables -t nat -a POSTROUTING -p tcp -s 192.168.10.0/24 --dport ftp -j SNAT --to-source 87.248.214.97
